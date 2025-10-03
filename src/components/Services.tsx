@@ -10,6 +10,7 @@ const services = [
     description: 'Op maat gemaakte web apps gebouwd met React, Next.js en moderne frameworks. Schaalbaar, snel en SEO-geoptimaliseerd.',
     features: ['Progressive Web Apps', 'Real-time Functionaliteit', 'API Integratie', 'Cloud Deployment'],
     gradient: 'from-cyan-500 to-blue-600',
+    link: '/diensten/web-applicaties',
   },
   {
     icon: Smartphone,
@@ -17,6 +18,7 @@ const services = [
     description: 'Native iOS/Android of cross-platform apps met React Native en Flutter voor maximaal bereik.',
     features: ['iOS & Android', 'Cross-platform', 'Push Notificaties', 'Offline Ondersteuning'],
     gradient: 'from-purple-500 to-pink-600',
+    link: '/diensten/mobiele-apps',
   },
   {
     icon: ShoppingCart,
@@ -24,6 +26,7 @@ const services = [
     description: 'Complete online winkels met betaalintegratie, voorraadbeheer en analytics.',
     features: ['Betaal Gateways', 'Voorraad Systeem', 'Analytics Dashboard', 'SEO Geoptimaliseerd'],
     gradient: 'from-orange-500 to-red-600',
+    link: '/diensten/e-commerce',
   },
   {
     icon: Boxes,
@@ -31,6 +34,7 @@ const services = [
     description: 'Op maat gemaakte enterprise oplossingen, SaaS platforms en business automation tools.',
     features: ['Bedrijfslogica', 'Workflow Automatisering', 'Externe Integratie', 'Schaalbare Architectuur'],
     gradient: 'from-green-500 to-teal-600',
+    link: '/diensten/maatwerk-software',
   },
   {
     icon: Cloud,
@@ -38,6 +42,7 @@ const services = [
     description: 'Cloud infrastructuur setup, migratie en optimalisatie met AWS, Azure en Google Cloud.',
     features: ['DevOps & CI/CD', 'Cloud Migratie', 'Auto-scaling', 'Kosten Optimalisatie'],
     gradient: 'from-blue-500 to-indigo-600',
+    link: '/diensten/cloud-oplossingen',
   },
   {
     icon: Lock,
@@ -45,6 +50,7 @@ const services = [
     description: 'Continue ondersteuning, security updates, performance monitoring en 24/7 onderhoud.',
     features: ['Security Audits', 'Performance Monitoring', '24/7 Support', 'Regelmatige Updates'],
     gradient: 'from-red-500 to-pink-600',
+    link: '/diensten/beveiliging-onderhoud',
   },
 ];
 
@@ -74,14 +80,15 @@ export default function Services() {
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
-              <motion.div
+              <motion.a
+                href={service.link}
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ y: -10, transition: { duration: 0.2 } }}
-                className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                className="group relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer block"
               >
                 {/* Gradient Background on Hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
@@ -114,7 +121,7 @@ export default function Services() {
                   Meer Info
                   <Zap className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-cyan-500" />
                 </div>
-              </motion.div>
+              </motion.a>
             );
           })}
         </div>

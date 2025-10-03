@@ -149,10 +149,13 @@ export default function Portfolio() {
                 </div>
 
                 {/* View Case Study Link */}
-                <button className="flex items-center gap-2 text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-purple-600 group-hover:gap-3 transition-all duration-300">
+                <a 
+                  href={`/portfolio/${project.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                  className="flex items-center gap-2 text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-purple-600 group-hover:gap-3 transition-all duration-300"
+                >
                   Bekijk Case Study
                   <ArrowRight size={16} />
-                </button>
+                </a>
               </div>
             </motion.div>
           ))}

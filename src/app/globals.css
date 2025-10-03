@@ -22,6 +22,21 @@
     box-shadow: 0 0 20px rgba(14, 165, 233, 0.3),
                 0 0 40px rgba(168, 85, 247, 0.2);
   }
+  
+  .animate-bounce-delay-1 {
+    animation: bounce 1s infinite;
+    animation-delay: 0ms;
+  }
+  
+  .animate-bounce-delay-2 {
+    animation: bounce 1s infinite;
+    animation-delay: 150ms;
+  }
+  
+  .animate-bounce-delay-3 {
+    animation: bounce 1s infinite;
+    animation-delay: 300ms;
+  }
 }
 
 html {
