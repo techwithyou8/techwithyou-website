@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { ArrowRight, CheckCircle, Smartphone, Zap, Shield, Code } from 'lucide-react';
+import { ArrowRight, CheckCircle, Smartphone } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Mobiele App Ontwikkeling - iOS & Android | TechWithYou',

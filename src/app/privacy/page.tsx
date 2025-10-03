@@ -37,7 +37,7 @@ export default function PrivacyPage() {
 
             <h2>1. Inleiding</h2>
             <p>
-              TechWithYou ("wij", "ons", "onze") respecteert uw privacy en is toegewijd aan het beschermen van uw persoonlijke gegevens. 
+              TechWithYou (&quot;wij&quot;, &quot;ons&quot;, &quot;onze&quot;) respecteert uw privacy en is toegewijd aan het beschermen van uw persoonlijke gegevens. 
               Dit privacybeleid legt uit hoe we uw persoonlijke informatie verzamelen, gebruiken, delen en beschermen wanneer u onze diensten gebruikt.
             </p>
 
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
             <ul>
               <li>Recht op toegang tot uw persoonlijke gegevens</li>
               <li>Recht op rectificatie van onjuiste gegevens</li>
-              <li>Recht op verwijdering ("recht om vergeten te worden")</li>
+              <li>Recht op verwijdering (&quot;recht om vergeten te worden&quot;)</li>
               <li>Recht op beperking van verwerking</li>
               <li>Recht op gegevensoverdraagbaarheid</li>
               <li>Recht van bezwaar tegen verwerking</li>
