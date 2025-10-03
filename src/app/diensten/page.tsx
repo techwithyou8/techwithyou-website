@@ -32,7 +32,6 @@ export default function DienstenPage() {
             wij bieden end-to-end ontwikkelingsdiensten die jouw bedrijf naar een hoger niveau tillen.
           </p>
         </div>
-        </div>
       </section>
 
       {/* Services Component */}
