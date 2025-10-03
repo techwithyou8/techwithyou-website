@@ -10,6 +10,7 @@ const navLinks = [
   { name: 'Diensten', href: '/diensten' },
   { name: 'Technologie', href: '/technologie' },
   { name: 'Portfolio', href: '/portfolio' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
 ];
 
