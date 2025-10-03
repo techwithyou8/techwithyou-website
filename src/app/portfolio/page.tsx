@@ -86,7 +86,7 @@ export default function PortfolioPage() {
                   ))}
                 </div>
                 <p className="text-gray-700 dark:text-gray-300 mb-6 italic">
-                  "{testimonial.text}"
+                  &ldquo;{testimonial.text}&rdquo;
                 </p>
                 <div>
                   <div className="font-bold text-gray-900 dark:text-white">{testimonial.name}</div>

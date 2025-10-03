@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Code2, Zap } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 export default function Hero() {
   return (
@@ -56,7 +56,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-base sm:text-lg text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed"
         >
-          Enterprise-grade oplossingen voor ambitieuze bedrijven. Van MVP's tot volledige applicaties, 
+          Enterprise-grade oplossingen voor ambitieuze bedrijven. Van MVP&apos;s tot volledige applicaties,
           wij brengen jouw visie tot leven met de nieuwste technologie.
         </motion.p>
 
