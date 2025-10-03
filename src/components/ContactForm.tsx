@@ -1,8 +1,8 @@
 'use client';
 
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, CheckCircle, Linkedin, Github, Twitter } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Mail, Phone, MapPin, Send, CheckCircle, Linkedin, Github, Twitter, MessageCircle, Upload } from 'lucide-react';
 import Toast, { ToastType } from './Toast';
 
 export default function ContactForm() {
@@ -10,11 +10,11 @@ export default function ContactForm() {
     name: '',
     email: '',
     company: '',
-    budget: '',
     service: '',
     message: '',
     website: '' // Honeypot field
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -67,7 +67,8 @@ export default function ContactForm() {
         // Reset after 5 seconds
         setTimeout(() => {
           setIsSubmitted(false);
-          setFormData({ name: '', email: '', company: '', budget: '', service: '', message: '', website: '' });
+          setFormData({ name: '', email: '', company: '', service: '', message: '', website: '' });
+          setSelectedFile(null);
         }, 5000);
       } else {
         setErrorMessage(data.error || 'Er is iets misgegaan. Probeer het later opnieuw.');
@@ -113,6 +114,28 @@ export default function ContactForm() {
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/png'
+      ];
+      
+      if (allowedTypes.includes(file.type) && file.size <= 10 * 1024 * 1024) { // 10MB limit
+        setSelectedFile(file);
+      } else {
+        setToast({
+          message: 'Alleen PDF, DOCX, JPG en PNG bestanden tot 10MB zijn toegestaan',
+          type: 'warning',
+          isVisible: true,
+        });
+      }
     }
   };
 
@@ -198,13 +221,28 @@ export default function ContactForm() {
                   </div>
                 </a>
 
-                <a href="tel:+31612345678" className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-md transition-all duration-300 group">
+                <a href="tel:+31605815800" className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-md transition-all duration-300 group">
                   <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg group-hover:scale-110 transition-transform">
                     <Phone className="text-white" size={20} />
                   </div>
                   <div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">Phone</div>
-                    <div className="font-semibold text-gray-900 dark:text-white">+31 6 1234 5678</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">+31 6 058 158</div>
+                  </div>
+                </a>
+
+                <a 
+                  href="https://wa.me/31605815800?text=Hallo%20TechWithYou%2C%20ik%20heb%20interesse%20in%20jullie%20diensten%20en%20zou%20graag%20meer%20informatie%20willen."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-md transition-all duration-300 group"
+                >
+                  <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg group-hover:scale-110 transition-transform">
+                    <MessageCircle className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">WhatsApp</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Direct Chat</div>
                   </div>
                 </a>
 
@@ -345,39 +383,19 @@ export default function ContactForm() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div>
-                      <label htmlFor="company" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Bedrijfsnaam
-                      </label>
-                      <input
-                        type="text"
-                        id="company"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
-                        placeholder="Jouw Bedrijf"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="budget" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                        Projectbudget
-                      </label>
-                      <select
-                        id="budget"
-                        name="budget"
-                        value={formData.budget}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
-                      >
-                        <option value="">Selecteer Budget</option>
-                        <option value="5k-10k">€5K - €10K</option>
-                        <option value="10k-25k">€10K - €25K</option>
-                        <option value="25k-50k">€25K - €50K</option>
-                        <option value="50k+">€50K+</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Bedrijfsnaam
+                    </label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                      placeholder="Jouw Bedrijf"
+                    />
                   </div>
 
                   <div>
@@ -430,6 +448,39 @@ export default function ContactForm() {
                     {fieldErrors.message && (
                       <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>
                     )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="file" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Bijlage (Optioneel)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="file"
+                        onChange={handleFileChange}
+                        accept=".pdf,.docx,.jpg,.jpeg,.png"
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="file"
+                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-cyan-500 dark:hover:border-cyan-500 cursor-pointer transition-all flex items-center gap-3 text-gray-700 dark:text-gray-300"
+                      >
+                        <Upload size={20} />
+                        <span>
+                          {selectedFile ? selectedFile.name : 'Upload bestand (PDF, DOCX, JPG, PNG - max 10MB)'}
+                        </span>
+                      </label>
+                      {selectedFile && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFile(null)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 font-semibold"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <button

@@ -71,8 +71,8 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <Phone size={16} className="mt-1 text-cyan-400" />
-                <a href="tel:+31612345678" className="hover:text-cyan-400 transition-colors">
-                  +31 6 1234 5678
+                <a href="tel:+31605815800" className="hover:text-cyan-400 transition-colors">
+                  +31 6 058 158
                 </a>
               </li>
               <li className="flex items-start gap-2">
@@ -92,8 +92,8 @@ export default function Footer() {
             Gemaakt met <Heart size={16} className="text-red-500 animate-pulse" /> door TechWithYou
           </div>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-cyan-400 transition-colors">Privacybeleid</a>
-            <a href="#" className="hover:text-cyan-400 transition-colors">Algemene Voorwaarden</a>
+            <a href="/privacy" className="hover:text-cyan-400 transition-colors">Privacybeleid</a>
+            <a href="/algemene-voorwaarden" className="hover:text-cyan-400 transition-colors">Algemene Voorwaarden</a>
           </div>
         </div>
       </div>

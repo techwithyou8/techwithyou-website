@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LiveChat from "@/components/LiveChat";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://techwithyou.com'),
@@ -99,6 +100,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
         {children}
+        <LiveChat />
       </body>
     </html>
   );

@@ -74,10 +74,11 @@ export default function Hero() {
             <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
           </a>
           <a
-            href="/portfolio"
-            className="px-8 py-3.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white font-semibold text-base hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300"
+            href="/diensten"
+            className="px-8 py-3.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white font-semibold text-base hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300 flex items-center gap-2"
           >
-            Bekijk Ons Werk
+            Bekijk Onze Diensten
+            <ArrowRight className="opacity-70" size={18} />
           </a>
         </motion.div>
 
