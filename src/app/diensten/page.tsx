@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description: 'Van web apps tot mobiele oplossingen - wij bouwen schaalbare, snelle en veilige applicaties met de nieuwste technologieën.',
     type: 'website',
   },
+  alternates: {
+    canonical: '/diensten',
+  },
 };
 
 export default function DienstenPage() {

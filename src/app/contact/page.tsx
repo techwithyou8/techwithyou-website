@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description: 'Klaar om te starten? Stuur ons een bericht en we reageren binnen 24 uur.',
     type: 'website',
   },
+  alternates: {
+    canonical: '/contact',
+  },
 };
 
 export default function ContactPage() {
