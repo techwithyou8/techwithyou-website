@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description: 'Ontdek welke cutting-edge technologieën we gebruiken om krachtige, schaalbare applicaties te bouwen.',
     type: 'website',
   },
+  alternates: {
+    canonical: '/technologie',
+  },
 };
 
 export default function TechnologiePage() {

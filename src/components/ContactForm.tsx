@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Phone, MapPin, Send, CheckCircle, Linkedin, Github, Twitter } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Toast, { ToastType } from './Toast';
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -11,39 +12,148 @@ export default function ContactForm() {
     company: '',
     budget: '',
     service: '',
-    message: ''
+    message: '',
+    website: '' // Honeypot field
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Client-side validation
+    if (!validateForm()) {
+      setToast({
+        message: 'Vul alle verplichte velden correct in',
+        type: 'warning',
+        isVisible: true,
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
+    setErrorMessage('');
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    
-    // Reset after 5 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({ name: '', email: '', company: '', budget: '', service: '', message: '' });
-    }, 5000);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsSubmitted(true);
+        setToast({
+          message: 'Bericht verzonden! We nemen binnen 24 uur contact op.',
+          type: 'success',
+          isVisible: true,
+        });
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({ name: '', email: '', company: '', budget: '', service: '', message: '', website: '' });
+        }, 5000);
+      } else {
+        setErrorMessage(data.error || 'Er is iets misgegaan. Probeer het later opnieuw.');
+        setToast({
+          message: data.error || 'Er is iets misgegaan. Probeer het later opnieuw.',
+          type: 'error',
+          isVisible: true,
+        });
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setErrorMessage('Netwerkfout. Controleer je internetverbinding en probeer opnieuw.');
+      setToast({
+        message: 'Netwerkfout. Controleer je internetverbinding en probeer opnieuw.',
+        type: 'error',
+        isVisible: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  useEffect(() => {
+    if (toast.isVisible) {
+      const timer = setTimeout(() => {
+        setToast(prev => ({ ...prev, isVisible: false }));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.isVisible]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [name]: value
     }));
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      errors.name = 'Naam moet minimaal 2 karakters zijn';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      errors.email = 'E-mailadres is verplicht';
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = 'Voer een geldig e-mailadres in';
+    }
+
+    if (!formData.service) {
+      errors.service = 'Selecteer een dienst';
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      errors.message = 'Bericht moet minimaal 10 karakters zijn';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   return (
-    <section id="contact" className="py-20 bg-white dark:bg-gray-950 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5" />
+    <>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
+      
+      <section id="contact" className="py-20 bg-white dark:bg-gray-950 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -169,6 +279,25 @@ export default function ContactForm() {
                 </motion.div>
               ) : (
                 <div className="space-y-6">
+                  {/* Honeypot field - hidden from users */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
+
+                  {/* Error message display */}
+                  {errorMessage && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+                      {errorMessage}
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -181,9 +310,16 @@ export default function ContactForm() {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                          fieldErrors.name 
+                            ? 'border-red-500 focus:ring-red-500' 
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                        } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
                         placeholder="Jan Jansen"
                       />
+                      {fieldErrors.name && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>
+                      )}
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
@@ -196,9 +332,16 @@ export default function ContactForm() {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                          fieldErrors.email 
+                            ? 'border-red-500 focus:ring-red-500' 
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                        } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
                         placeholder="jan@bedrijf.nl"
                       />
+                      {fieldErrors.email && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>
+                      )}
                     </div>
                   </div>
 
@@ -247,7 +390,11 @@ export default function ContactForm() {
                       required
                       value={formData.service}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                      className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                        fieldErrors.service 
+                          ? 'border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                      } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
                     >
                       <option value="">Selecteer Dienst</option>
                       <option value="web-app">Web Applicatie</option>
@@ -257,6 +404,9 @@ export default function ContactForm() {
                       <option value="cloud">Cloud Oplossingen</option>
                       <option value="maintenance">Onderhoud & Support</option>
                     </select>
+                    {fieldErrors.service && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.service}</p>
+                    )}
                   </div>
 
                   <div>
@@ -270,9 +420,16 @@ export default function ContactForm() {
                       rows={5}
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all resize-none text-gray-900 dark:text-white"
+                      className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                        fieldErrors.message 
+                          ? 'border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                      } focus:ring-2 focus:border-transparent outline-none transition-all resize-none text-gray-900 dark:text-white`}
                       placeholder="Vertel ons over jouw project, doelen en tijdlijn..."
                     />
+                    {fieldErrors.message && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>
+                    )}
                   </div>
 
                   <button
@@ -299,5 +456,6 @@ export default function ContactForm() {
         </div>
       </div>
     </section>
+    </>
   );
 }

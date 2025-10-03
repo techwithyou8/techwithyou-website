@@ -12,6 +12,9 @@ export const metadata: Metadata = {
     description: 'Van startups tot enterprise: zie hoe we bedrijven helpen groeien met innovatieve digitale oplossingen.',
     type: 'website',
   },
+  alternates: {
+    canonical: '/portfolio',
+  },
 };
 
 export default function PortfolioPage() {
