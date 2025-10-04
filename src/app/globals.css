@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(to right, rgb(6 182 212), rgb(59 130 246), rgb(168 85 247));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  .card-gradient {
+    background: linear-gradient(to bottom right, rgba(6, 182, 212, 0.1), rgba(59, 130, 246, 0.1), rgba(168, 85, 247, 0.1));
+  }
+  
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .glow {
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.3),
+                0 0 40px rgba(168, 85, 247, 0.2);
+  }
+  
+  /* 3D Logo Effects */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  
+  .logo-3d {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+  
+  .logo-3d:hover {
+    transform: rotateY(15deg) rotateX(5deg) translateZ(10px);
+  }
+  
+  .logo-depth-1 {
+    transform: translateZ(-2px) translateX(1px) translateY(1px);
+  }
+  
+  .logo-depth-2 {
+    transform: translateZ(-4px) translateX(2px) translateY(2px);
+  }
+  
+  .logo-depth-3 {
+    transform: translateZ(-6px) translateX(3px) translateY(3px);
+  }
+  
+  .logo-front {
+    transform: translateZ(2px);
+  }
+  
+  .logo-border {
+    transform: translateZ(3px);
+    box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.3);
+  }
+  
+  .cpu-glow {
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+  }
+  
+  .text-shadow-3d {
+    transform: translateZ(-2px) translateX(1px) translateY(1px);
+  }
+  
+  .menu-3d {
+    transform-style: preserve-3d;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .animate-bounce-delay-1 {
+    animation: bounce 1s infinite;
+    animation-delay: 0ms;
+  }
+  
+  .animate-bounce-delay-2 {
+    animation: bounce 1s infinite;
+    animation-delay: 150ms;
+  }
+  
+  .animate-bounce-delay-3 {
+    animation: bounce 1s infinite;
+    animation-delay: 300ms;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(17 24 39);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgb(6 182 212), rgb(168 85 247));
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, rgb(34 211 238), rgb(192 132 252));
+}

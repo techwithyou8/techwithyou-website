@@ -1,0 +1,15 @@
+/* AnimatedGridBackground styles */
+.animated-grid-fallback {
+  background-image: 
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 
+    var(--major-gap, 80px) var(--major-gap, 80px), 
+    var(--major-gap, 80px) var(--major-gap, 80px), 
+    var(--minor-gap, 16px) var(--minor-gap, 16px), 
+    var(--minor-gap, 16px) var(--minor-gap, 16px);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.9));
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.9));
+}

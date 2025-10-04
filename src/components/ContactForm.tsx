@@ -1,0 +1,512 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Mail, Phone, MapPin, Send, CheckCircle, Linkedin, Github, Twitter, MessageCircle, Upload } from 'lucide-react';
+import Toast, { ToastType } from './Toast';
+
+export default function ContactForm() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    company: '',
+    service: '',
+    message: '',
+    website: '' // Honeypot field
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+    isVisible: boolean;
+  }>({
+    message: '',
+    type: 'info',
+    isVisible: false,
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Client-side validation
+    if (!validateForm()) {
+      setToast({
+        message: 'Vul alle verplichte velden correct in',
+        type: 'warning',
+        isVisible: true,
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setErrorMessage('');
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsSubmitted(true);
+        setToast({
+          message: 'Bericht verzonden! We nemen binnen 24 uur contact op.',
+          type: 'success',
+          isVisible: true,
+        });
+        
+        // Reset after 5 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({ name: '', email: '', company: '', service: '', message: '', website: '' });
+          setSelectedFile(null);
+        }, 5000);
+      } else {
+        setErrorMessage(data.error || 'Er is iets misgegaan. Probeer het later opnieuw.');
+        setToast({
+          message: data.error || 'Er is iets misgegaan. Probeer het later opnieuw.',
+          type: 'error',
+          isVisible: true,
+        });
+      }
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setErrorMessage('Netwerkfout. Controleer je internetverbinding en probeer opnieuw.');
+      setToast({
+        message: 'Netwerkfout. Controleer je internetverbinding en probeer opnieuw.',
+        type: 'error',
+        isVisible: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    if (toast.isVisible) {
+      const timer = setTimeout(() => {
+        setToast(prev => ({ ...prev, isVisible: false }));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.isVisible]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear field error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'image/jpeg',
+        'image/png'
+      ];
+      
+      if (allowedTypes.includes(file.type) && file.size <= 10 * 1024 * 1024) { // 10MB limit
+        setSelectedFile(file);
+      } else {
+        setToast({
+          message: 'Alleen PDF, DOCX, JPG en PNG bestanden tot 10MB zijn toegestaan',
+          type: 'warning',
+          isVisible: true,
+        });
+      }
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim() || formData.name.trim().length < 2) {
+      errors.name = 'Naam moet minimaal 2 karakters zijn';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      errors.email = 'E-mailadres is verplicht';
+    } else if (!emailRegex.test(formData.email)) {
+      errors.email = 'Voer een geldig e-mailadres in';
+    }
+
+    if (!formData.service) {
+      errors.service = 'Selecteer een dienst';
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      errors.message = 'Bericht moet minimaal 10 karakters zijn';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  return (
+    <>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
+      
+      <section id="contact" className="py-20 bg-white dark:bg-gray-950 relative overflow-hidden">
+        {/* Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5" />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <span className="inline-block px-4 py-2 mb-4 text-sm font-semibold text-cyan-600 bg-cyan-100 dark:bg-cyan-900/30 dark:text-cyan-400 rounded-full">
+            Neem Contact Op
+          </span>
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            Laten We Iets Groots Bouwen
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            Klaar om jouw ideeën werkelijkheid te maken? Neem contact op voor een gratis consultatie en projectofferte.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-2 space-y-8"
+          >
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                Contactinformatie
+              </h3>
+              <div className="space-y-4">
+                <a href="mailto:info@techwithyou.com" className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 hover:shadow-md transition-all duration-300 group">
+                  <div className="p-3 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                    <Mail className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Email</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">info@techwithyou.com</div>
+                  </div>
+                </a>
+
+                <a href="tel:+31605815800" className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 hover:shadow-md transition-all duration-300 group">
+                  <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg group-hover:scale-110 transition-transform">
+                    <Phone className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Phone</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">+31 6 058 158</div>
+                  </div>
+                </a>
+
+                <a 
+                  href="https://wa.me/31605815800?text=Hallo%20TechWithYou%2C%20ik%20heb%20interesse%20in%20jullie%20diensten%20en%20zou%20graag%20meer%20informatie%20willen."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 hover:shadow-md transition-all duration-300 group"
+                >
+                  <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg group-hover:scale-110 transition-transform">
+                    <MessageCircle className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">WhatsApp</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Direct Chat</div>
+                  </div>
+                </a>
+
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20">
+                  <div className="p-3 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg">
+                    <MapPin className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">Location</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">Amsterdam, Netherlands</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                Volg Ons
+              </h3>
+              <div className="flex gap-3">
+                {[
+                  { icon: Linkedin, href: '#', color: 'from-blue-500 to-blue-600' },
+                  { icon: Github, href: '#', color: 'from-gray-700 to-gray-900' },
+                  { icon: Twitter, href: '#', color: 'from-cyan-400 to-blue-500' },
+                ].map((social, index) => {
+                  const Icon = social.icon;
+                  return (
+                    <a
+                      key={index}
+                      href={social.href}
+                      className={`p-3 bg-gradient-to-br ${social.color} rounded-lg text-white hover:scale-110 transition-transform duration-300`}
+                    >
+                      <Icon size={20} />
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="p-6 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 text-white">
+              <h4 className="font-bold text-lg mb-2">🚀 Snelle Reactie</h4>
+              <p className="text-sm opacity-90">
+                We reageren doorgaans binnen 24 uur. Voor urgente vragen, bel ons direct!
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-3"
+          >
+            <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-gray-900 rounded-2xl p-8 shadow-xl">
+              {isSubmitted ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-12"
+                >
+                  <div className="inline-flex p-4 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
+                    <CheckCircle size={48} className="text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                    Bedankt!
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    We hebben je bericht ontvangen en nemen binnen 24 uur contact op.
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Honeypot field - hidden from users */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={formData.website}
+                    onChange={handleChange}
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
+
+                  {/* Error message display */}
+                  {errorMessage && (
+                    <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400">
+                      {errorMessage}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Volledige Naam *
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        value={formData.name}
+                        onChange={handleChange}
+                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                          fieldErrors.name 
+                            ? 'border-red-500 focus:ring-red-500' 
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                        } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
+                        placeholder="Jan Jansen"
+                      />
+                      {fieldErrors.name && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        E-mailadres *
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={formData.email}
+                        onChange={handleChange}
+                        className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                          fieldErrors.email 
+                            ? 'border-red-500 focus:ring-red-500' 
+                            : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                        } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
+                        placeholder="jan@bedrijf.nl"
+                      />
+                      {fieldErrors.email && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="company" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Bedrijfsnaam
+                    </label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                      placeholder="Jouw Bedrijf"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="service" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Geïnteresseerd In *
+                    </label>
+                    <select
+                      id="service"
+                      name="service"
+                      required
+                      value={formData.service}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                        fieldErrors.service 
+                          ? 'border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                      } focus:ring-2 focus:border-transparent outline-none transition-all text-gray-900 dark:text-white`}
+                    >
+                      <option value="">Selecteer Dienst</option>
+                      <option value="web-app">Web Applicatie</option>
+                      <option value="mobile-app">Mobiele App</option>
+                      <option value="ecommerce">E-commerce</option>
+                      <option value="custom">Maatwerk Software</option>
+                      <option value="cloud">Cloud Oplossingen</option>
+                      <option value="maintenance">Onderhoud & Support</option>
+                    </select>
+                    {fieldErrors.service && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.service}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Projectdetails *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      required
+                      rows={5}
+                      value={formData.message}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border ${
+                        fieldErrors.message 
+                          ? 'border-red-500 focus:ring-red-500' 
+                          : 'border-gray-300 dark:border-gray-700 focus:ring-cyan-500'
+                      } focus:ring-2 focus:border-transparent outline-none transition-all resize-none text-gray-900 dark:text-white`}
+                      placeholder="Vertel ons over jouw project, doelen en tijdlijn..."
+                    />
+                    {fieldErrors.message && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="file" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      Bijlage (Optioneel)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="file"
+                        id="file"
+                        onChange={handleFileChange}
+                        accept=".pdf,.docx,.jpg,.jpeg,.png"
+                        className="hidden"
+                      />
+                      <label
+                        htmlFor="file"
+                        className="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:border-cyan-500 dark:hover:border-cyan-500 cursor-pointer transition-all flex items-center gap-3 text-gray-700 dark:text-gray-300"
+                      >
+                        <Upload size={20} />
+                        <span>
+                          {selectedFile ? selectedFile.name : 'Upload bestand (PDF, DOCX, JPG, PNG - max 10MB)'}
+                        </span>
+                      </label>
+                      {selectedFile && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedFile(null)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 hover:text-red-700 font-semibold"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full py-4 px-8 bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold rounded-lg hover:shadow-xl hover:shadow-cyan-500/30 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Verzenden...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} />
+                        Verstuur Bericht
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </form>
+          </motion.div>
+        </div>
+      </div>
+    </section>
+    </>
+  );
+}
