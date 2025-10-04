@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatedGridBackground } from '@/components/AnimatedGridBackground';
 import dynamic from 'next/dynamic';
 
 const ThreeJSBackground = dynamic(() => import('@/components/ThreeJSBackground'), {
@@ -11,11 +10,19 @@ const ThreeJSBackground = dynamic(() => import('@/components/ThreeJSBackground')
 export default function GridTestPage() {
   return (
     <div className="relative min-h-screen bg-black">
-      {/* Test the AnimatedGridBackground with different configurations */}
+      {/* Test the ThreeJSBackground with different configurations */}
       
       {/* Default Configuration */}
       <div className="relative h-screen">
-        <AnimatedGridBackground />
+        <ThreeJSBackground 
+          amplitude={22}
+          speed={0.55}
+          majorGap={80}
+          minorGap={16}
+          lineColorMajor="rgba(255,255,255,0.07)"
+          lineColorMinor="rgba(255,255,255,0.02)"
+          enableNoise={true}
+        />
         <div className="relative z-10 flex items-center justify-center h-full">
           <div className="text-center text-white">
             <h1 className="text-4xl font-bold mb-4">Default Configuration</h1>
@@ -26,7 +33,7 @@ export default function GridTestPage() {
 
       {/* High Energy Configuration */}
       <div className="relative h-screen">
-        <AnimatedGridBackground 
+        <ThreeJSBackground 
           amplitude={35}
           speed={1.2}
           majorGap={60}
@@ -45,7 +52,7 @@ export default function GridTestPage() {
 
       {/* Subtle Configuration */}
       <div className="relative h-screen">
-        <AnimatedGridBackground 
+        <ThreeJSBackground 
           amplitude={15}
           speed={0.3}
           majorGap={120}
