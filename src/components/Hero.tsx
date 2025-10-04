@@ -2,21 +2,83 @@
 
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { AnimatedGridBackground } from './AnimatedGridBackground';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
+
+// Direct dynamic import of ThreeJS background with immediate loading
+const ThreeJSBackground = dynamic(() => import('./ThreeJSBackground'), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-[#070c14]">
+      {/* Enhanced CSS Grid Fallback */}
+      <div 
+        className="absolute inset-0 opacity-60"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(34,211,238,0.15) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(34,211,238,0.15) 1px, transparent 1px),
+            linear-gradient(rgba(59,130,246,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59,130,246,0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px, 80px 80px, 16px 16px, 16px 16px',
+          transform: 'perspective(1000px) rotateX(-38deg) translateY(-80px)',
+          transformOrigin: 'center center',
+          animation: 'gridFloat 8s ease-in-out infinite alternate'
+        }}
+      />
+    </div>
+  )
+});
 
 export default function Hero() {
+  const [showThreeJS, setShowThreeJS] = useState(false);
+
+  useEffect(() => {
+    // Check if WebGL is supported
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    
+    if (gl) {
+      // Load ThreeJS immediately if WebGL is supported
+      const timer = setTimeout(() => {
+        setShowThreeJS(true);
+      }, 50); // Very quick load for hero section
+      
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950 pt-20">
-      {/* Animated 3D Grid Background */}
-      <AnimatedGridBackground 
-        amplitude={35}
-        speed={0.8}
-        majorGap={80}
-        minorGap={16}
-        lineColorMajor="rgba(34,211,238,0.15)"
-        lineColorMinor="rgba(59,130,246,0.08)"
-        enableNoise={true}
-      />
+      {/* 3D Grid Background */}
+      <div className="absolute inset-0 -z-10">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          {showThreeJS ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+            >
+              <ThreeJSBackground 
+                amplitude={35}
+                speed={0.8}
+                majorGap={80}
+                minorGap={16}
+                lineColorMajor="rgba(34,211,238,0.15)"
+                lineColorMinor="rgba(59,130,246,0.08)"
+                enableNoise={true}
+              />
+            </motion.div>
+          ) : (
+            <div className="absolute inset-0 bg-[#070c14] hero-grid-fallback" />
+          )}
+        </motion.div>
+      </div>
       
       {/* Enhanced Gradient Overlays for 3D Effect */}
       <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/8 via-transparent to-purple-500/8 pointer-events-none" />
@@ -175,58 +237,60 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.8 }}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
         >
-          <motion.a
-            href="/contact"
-            className="group relative px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-white font-semibold text-base hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex items-center gap-2 preserve-3d"
-            whileHover={{
-              rotateX: 15,
-              rotateY: 8,
-              scale: 1.08,
-              z: 25
-            }}
-            whileTap={{
-              scale: 0.95,
-              rotateX: 25
-            }}
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Start Jouw Project
-              <motion.div
-                whileHover={{ x: 5, rotateZ: 15 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ArrowRight size={18} />
-              </motion.div>
-            </span>
-            {/* 3D Button Depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-700 rounded-xl logo-depth-1"></div>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-700 to-blue-800 rounded-xl logo-depth-2"></div>
-          </motion.a>
-          <motion.a
-            href="/diensten"
-            className="px-8 py-3.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white font-semibold text-base hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center gap-2 relative preserve-3d"
-            whileHover={{
-              rotateX: 10,
-              rotateY: -5,
-              scale: 1.05,
-              z: 15
-            }}
-            whileTap={{
-              scale: 0.95
-            }}
-          >
-            <span className="relative z-10 flex items-center gap-2">
-              Bekijk Onze Diensten
-              <motion.div
-                whileHover={{ x: 3, opacity: 1 }}
-                className="opacity-70"
-              >
-                <ArrowRight size={18} />
-              </motion.div>
-            </span>
-            {/* 3D Button Depth */}
-            <div className="absolute inset-0 bg-white/3 border border-white/5 rounded-xl logo-depth-1"></div>
-          </motion.a>
+          <Link href="/contact">
+            <motion.div
+              className="group relative px-8 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-white font-semibold text-base hover:shadow-xl hover:shadow-cyan-500/20 transition-all duration-300 flex items-center gap-2 preserve-3d cursor-pointer"
+              whileHover={{
+                rotateX: 15,
+                rotateY: 8,
+                scale: 1.08,
+                z: 25
+              }}
+              whileTap={{
+                scale: 0.95,
+                rotateX: 25
+              }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Start Jouw Project
+                <motion.div
+                  whileHover={{ x: 5, rotateZ: 15 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ArrowRight size={18} />
+                </motion.div>
+              </span>
+              {/* 3D Button Depth */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-600 to-blue-700 rounded-xl logo-depth-1"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-700 to-blue-800 rounded-xl logo-depth-2"></div>
+            </motion.div>
+          </Link>
+          <Link href="/diensten">
+            <motion.div
+              className="px-8 py-3.5 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white font-semibold text-base hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center gap-2 relative preserve-3d cursor-pointer"
+              whileHover={{
+                rotateX: 10,
+                rotateY: -5,
+                scale: 1.05,
+                z: 15
+              }}
+              whileTap={{
+                scale: 0.95
+              }}
+            >
+              <span className="relative z-10 flex items-center gap-2">
+                Bekijk Onze Diensten
+                <motion.div
+                  whileHover={{ x: 3, opacity: 1 }}
+                  className="opacity-70"
+                >
+                  <ArrowRight size={18} />
+                </motion.div>
+              </span>
+              {/* 3D Button Depth */}
+              <div className="absolute inset-0 bg-white/3 border border-white/5 rounded-xl logo-depth-1"></div>
+            </motion.div>
+          </Link>
         </motion.div>
 
         {/* Stats */}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LiveChat from "@/components/LiveChat";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://techwithyou.com'),
@@ -98,9 +100,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="font-sans antialiased" style={{ fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-        {children}
-        <LiveChat />
+      <body className="font-sans antialiased system-font">
+        <ErrorBoundary>
+          <LoadingScreen />
+          {children}
+          <LiveChat />
+        </ErrorBoundary>
       </body>
     </html>
   );

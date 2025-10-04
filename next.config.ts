@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  
+  // Experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
+  
+  // Image optimization
   images: {
     formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 year
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,6 +20,11 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
+
+  
+  // Compression
+  compress: true,
   
   async headers() {
     return [
@@ -43,6 +58,15 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()'
+          }
+        ]
+      },
+      {
+        source: '/(.*)\\.(js|css|woff|woff2|eot|ttf|otf|png|jpg|jpeg|gif|svg|ico|webp|avif)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
           }
         ]
       }

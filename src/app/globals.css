@@ -14,8 +14,63 @@
   
   .glass {
     background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .system-font {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Performance optimizations */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    will-change: scroll-position;
+  }
+
+  /* Optimize animations */
+  .preserve-3d,
+  .perspective-1000 {
+    will-change: transform;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* GPU acceleration for smooth animations */
+  .motion-div {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  /* Hero 3D Grid Fallback */
+  .hero-grid-fallback {
+    background-image: 
+      linear-gradient(rgba(34,211,238,0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,211,238,0.15) 1px, transparent 1px),
+      linear-gradient(rgba(59,130,246,0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.08) 1px, transparent 1px);
+    background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+    transform: perspective(1000px) rotateX(-38deg) translateY(-80px);
+    transform-origin: center center;
+    animation: heroGridFloat 8s ease-in-out infinite alternate;
+    opacity: 0.8;
+  }
+
+  @keyframes heroGridFloat {
+    0% {
+      transform: perspective(1000px) rotateX(-38deg) translateY(-80px) scale(1);
+    }
+    50% {
+      transform: perspective(1000px) rotateX(-35deg) translateY(-70px) scale(1.02);
+    }
+    100% {
+      transform: perspective(1000px) rotateX(-40deg) translateY(-85px) scale(0.98);
+    }
   }
   
   .glow {

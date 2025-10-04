@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Services from '@/components/Services';
 import Footer from '@/components/Footer';
@@ -104,12 +105,12 @@ export default function DienstenPage() {
           <p className="text-xl mb-8 opacity-90">
             Bespreek jouw project met onze experts en ontvang binnen 24 uur een gedetailleerde offerte.
           </p>
-          <a
+          <Link
             href="/contact"
             className="inline-block px-8 py-3.5 bg-white text-cyan-600 font-semibold rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300"
           >
             Vraag Gratis Offerte Aan
-          </a>
+          </Link>
         </div>
       </section>
 

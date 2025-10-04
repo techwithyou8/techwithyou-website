@@ -3,6 +3,7 @@
 import React, { useRef, useEffect, useState, ComponentType } from 'react';
 import dynamic from 'next/dynamic';
 import styles from './AnimatedGridBackground.module.css';
+import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 export interface AnimatedGridBackgroundProps {
   amplitude?: number;
@@ -53,22 +54,33 @@ export const AnimatedGridBackground: React.FC<AnimatedGridBackgroundProps> = (pr
   const [webgl, setWebgl] = useState(true);
   const [threejsLoaded, setThreejsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const { ref: observerRef } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
 
   useEffect(() => {
     setIsClient(true);
+    
+    // Check device capabilities
+    const isMobile = window.innerWidth < 768;
+    const isLowEnd = navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4;
+    
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (!gl) {
+      if (!gl || (isMobile && isLowEnd)) {
+        // Disable WebGL on low-end mobile devices
         setWebgl(false);
       } else {
-        // Give ThreeJS some time to load
-        setTimeout(() => setThreejsLoaded(true), 1000);
+        // Load ThreeJS immediately for hero section
+        const delay = isMobile ? 800 : 200; // Reduced delay
+        setTimeout(() => setThreejsLoaded(true), delay);
       }
     } catch {
       setWebgl(false);
     }
-  }, []);
+  }, []); // Remove dependency on hasIntersected for immediate loading
 
   useEffect(() => {
     if (containerRef.current) {
@@ -77,9 +89,19 @@ export const AnimatedGridBackground: React.FC<AnimatedGridBackgroundProps> = (pr
     }
   }, [p.majorGap, p.minorGap]);
 
+  // Combine refs
+  const setRefs = (element: HTMLDivElement | null) => {
+    if (containerRef.current !== element) {
+      containerRef.current = element;
+    }
+    if (observerRef.current !== element) {
+      observerRef.current = element;
+    }
+  };
+
   return (
     <div
-      ref={containerRef}
+      ref={setRefs}
       className={`pointer-events-none absolute inset-0 -z-10 overflow-hidden ${props.className || ''}`}
       aria-hidden="true"
     >

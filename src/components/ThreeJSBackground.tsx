@@ -34,27 +34,34 @@ function WaveGrid({
 
   const dims = useMemo(() => {
     // Choose plane size larger than viewport so perspective fills edges
-    const w = size.width * 1.6;
-    const h = size.height * 1.6;
+    // Reduce size on mobile for better performance
+    const isMobile = size.width < 768;
+    const multiplier = isMobile ? 1.3 : 1.6;
+    const w = size.width * multiplier;
+    const h = size.height * multiplier;
     return { w, h };
   }, [size]);
 
   const { major, minor } = useMemo(() => {
-    const buildGridMemo = (gap: number, color: string) => {
+    const buildGridMemo = (gap: number, color: string, isMobile = false) => {
       const material = new THREE.LineBasicMaterial({
         color: new THREE.Color(color),
-        transparent: true
+        transparent: true,
+        opacity: isMobile ? 0.7 : 1.0 // Reduce opacity on mobile for better performance
       });
       const positions: number[] = [];
       const halfW = dims.w / 2;
       const halfH = dims.h / 2;
 
+      // Reduce line density on mobile
+      const step = isMobile ? gap * 1.5 : gap;
+
       // Vertical lines
-      for (let x = -halfW; x <= halfW; x += gap) {
+      for (let x = -halfW; x <= halfW; x += step) {
         positions.push(x, 0, -halfH, x, 0, halfH);
       }
       // Horizontal lines
-      for (let z = -halfH; z <= halfH; z += gap) {
+      for (let z = -halfH; z <= halfH; z += step) {
         positions.push(-halfW, 0, z, halfW, 0, z);
       }
 
@@ -66,9 +73,10 @@ function WaveGrid({
       return { geometry, material };
     };
 
+    const isMobile = dims.w < 768;
     return {
-      major: buildGridMemo(majorGap, lineColorMajor),
-      minor: buildGridMemo(minorGap, lineColorMinor)
+      major: buildGridMemo(majorGap, lineColorMajor, isMobile),
+      minor: buildGridMemo(minorGap, lineColorMinor, isMobile)
     };
   }, [majorGap, minorGap, lineColorMajor, lineColorMinor, dims]);
 
@@ -112,11 +120,26 @@ function WaveGrid({
 }
 
 const ThreeJSBackground: React.FC<ThreeJSBackgroundProps> = (props) => {
+  // Detect mobile devices for performance optimization
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   return (
     <Canvas
       camera={{ position: [0, 160, 380], fov: 58, near: 0.1, far: 2000 }}
-      dpr={[1, 2]}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
+      dpr={isMobile ? [1, 1.5] : [1, 2]} // Lower DPR on mobile
+      gl={{ 
+        antialias: !isMobile, // Disable antialias on mobile for performance
+        powerPreference: 'high-performance',
+        alpha: false, // Disable transparency for better performance
+        stencil: false,
+        depth: true
+      }}
+      frameloop="demand" // Only render when needed
+      performance={{
+        min: 0.2, // Lower minimum framerate for mobile
+        max: isMobile ? 0.8 : 1,
+        debounce: 200
+      }}
     >
       <fog attach="fog" args={['#060a12', 300, 1000]} />
       <ambientLight intensity={0.2} />

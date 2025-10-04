@@ -1,14 +1,17 @@
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
-import Services from '@/components/Services';
-import TechStack from '@/components/TechStack';
-import Portfolio from '@/components/Portfolio';
-import Testimonials from '@/components/Testimonials';
-import ContactForm from '@/components/ContactForm';
-import Footer from '@/components/Footer';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import ScrollToTop from '@/components/ScrollToTop';
-import CookieConsent from '@/components/CookieConsent';
+
+// Lazy load components that are not immediately visible
+const Services = dynamic(() => import('@/components/Services'), { ssr: true });
+const TechStack = dynamic(() => import('@/components/TechStack'), { ssr: true });
+const Portfolio = dynamic(() => import('@/components/Portfolio'), { ssr: true });
+const Testimonials = dynamic(() => import('@/components/Testimonials'), { ssr: true });
+const ContactForm = dynamic(() => import('@/components/ContactForm'), { ssr: true });
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: true });
+const ScrollToTop = dynamic(() => import('@/components/ScrollToTop'));
+const CookieConsent = dynamic(() => import('@/components/CookieConsent'));
 
 export default function Home() {
   return (

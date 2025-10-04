@@ -1,6 +1,12 @@
 'use client';
 
 import { AnimatedGridBackground } from '@/components/AnimatedGridBackground';
+import dynamic from 'next/dynamic';
+
+const ThreeJSBackground = dynamic(() => import('@/components/ThreeJSBackground'), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-gray-900 flex items-center justify-center text-white">Loading 3D...</div>
+});
 
 export default function GridTestPage() {
   return (
@@ -52,6 +58,25 @@ export default function GridTestPage() {
           <div className="text-center text-white">
             <h1 className="text-4xl font-bold mb-4">Subtle Configuration</h1>
             <p className="text-gray-400">Gentle waves without noise, perfect for professional contexts</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Direct ThreeJS Test */}
+      <div className="relative h-screen">
+        <ThreeJSBackground 
+          amplitude={35}
+          speed={0.8}
+          majorGap={80}
+          minorGap={16}
+          lineColorMajor="rgba(34,211,238,0.15)"
+          lineColorMinor="rgba(59,130,246,0.08)"
+          enableNoise={true}
+        />
+        <div className="relative z-10 flex items-center justify-center h-full">
+          <div className="text-center text-white">
+            <h1 className="text-4xl font-bold mb-4">Direct ThreeJS Test</h1>
+            <p className="text-gray-400">Pure ThreeJS component without wrapper</p>
           </div>
         </div>
       </div>
