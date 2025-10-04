@@ -51,6 +51,7 @@ export const AnimatedGridBackground: React.FC<AnimatedGridBackgroundProps> = (pr
   const p = { ...defaultProps, ...props };
   const [isClient, setIsClient] = useState(false);
   const [webgl, setWebgl] = useState(true);
+  const [threejsLoaded, setThreejsLoaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -58,7 +59,12 @@ export const AnimatedGridBackground: React.FC<AnimatedGridBackgroundProps> = (pr
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      if (!gl) setWebgl(false);
+      if (!gl) {
+        setWebgl(false);
+      } else {
+        // Give ThreeJS some time to load
+        setTimeout(() => setThreejsLoaded(true), 1000);
+      }
     } catch {
       setWebgl(false);
     }
@@ -79,13 +85,15 @@ export const AnimatedGridBackground: React.FC<AnimatedGridBackgroundProps> = (pr
     >
       <div className="absolute inset-0 bg-[#070c14] [background:radial-gradient(circle_at_50%_20%,rgba(34,63,105,0.15),transparent_60%),linear-gradient(#0b111d,#060a12)]" />
       
-      {isClient && webgl ? (
-        <ThreeJSBackground {...p} />
-      ) : (
-        <div className="text-xs text-white/40 p-2">Loading 3D background...</div>
-      )}
-      
+      {/* Always show CSS fallback grid */}
       <div className={`absolute inset-0 ${styles['animated-grid-fallback']}`} />
+      
+      {/* Try to load ThreeJS background if supported */}
+      {isClient && webgl && threejsLoaded && (
+        <div className="absolute inset-0">
+          <ThreeJSBackground {...p} />
+        </div>
+      )}
     </div>
   );
 };
