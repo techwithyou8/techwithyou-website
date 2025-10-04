@@ -3,49 +3,32 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 
-// Direct dynamic import of ThreeJS background with immediate loading
-const ThreeJSBackground = dynamic(() => import('./ThreeJSBackground'), {
+// Lazy load ThreeJS component
+const ThreeJSBackground = dynamic(() => import('./ThreeJSBackground'), { 
   ssr: false,
-  loading: () => (
-    <div className="absolute inset-0 bg-[#070c14]">
-      {/* Enhanced CSS Grid Fallback */}
-      <div 
-        className="absolute inset-0 opacity-60"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(34,211,238,0.15) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34,211,238,0.15) 1px, transparent 1px),
-            linear-gradient(rgba(59,130,246,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(59,130,246,0.08) 1px, transparent 1px)
-          `,
-          backgroundSize: '80px 80px, 80px 80px, 16px 16px, 16px 16px',
-          transform: 'perspective(1000px) rotateX(-38deg) translateY(-80px)',
-          transformOrigin: 'center center',
-          animation: 'gridFloat 8s ease-in-out infinite alternate'
-        }}
-      />
-    </div>
-  )
+  loading: () => <div className="absolute inset-0 bg-gray-950 hero-grid-fallback" />
 });
 
 export default function Hero() {
+  const [isClient, setIsClient] = useState(false);
   const [showThreeJS, setShowThreeJS] = useState(false);
 
   useEffect(() => {
-    // Check if WebGL is supported
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    setIsClient(true);
     
-    if (gl) {
-      // Load ThreeJS immediately if WebGL is supported
-      const timer = setTimeout(() => {
-        setShowThreeJS(true);
-      }, 50); // Very quick load for hero section
+    // Check WebGL support
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       
-      return () => clearTimeout(timer);
+      if (gl) {
+        setTimeout(() => setShowThreeJS(true), 100);
+      }
+    } catch {
+      console.warn('WebGL not supported, using CSS fallback');
     }
   }, []);
 
@@ -53,31 +36,19 @@ export default function Hero() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-950 pt-20">
       {/* 3D Grid Background */}
       <div className="absolute inset-0 -z-10">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-        >
-          {showThreeJS ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
-            >
-              <ThreeJSBackground 
-                amplitude={35}
-                speed={0.8}
-                majorGap={80}
-                minorGap={16}
-                lineColorMajor="rgba(34,211,238,0.15)"
-                lineColorMinor="rgba(59,130,246,0.08)"
-                enableNoise={true}
-              />
-            </motion.div>
-          ) : (
-            <div className="absolute inset-0 bg-[#070c14] hero-grid-fallback" />
-          )}
-        </motion.div>
+        {isClient && showThreeJS ? (
+          <ThreeJSBackground 
+            amplitude={35}
+            speed={0.8}
+            majorGap={80}
+            minorGap={16}
+            lineColorMajor="rgba(34,211,238,0.15)"
+            lineColorMinor="rgba(59,130,246,0.08)"
+            enableNoise={true}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gray-950 hero-grid-fallback" />
+        )}
       </div>
       
       {/* Enhanced Gradient Overlays for 3D Effect */}
